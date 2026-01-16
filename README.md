@@ -1,13 +1,60 @@
+# Git Branching & Merging Example
+
+The purpose of this assignment is to give you additional practice working with Git branches.
+
+Git branches allow us to have parallel histories, versions of files that we haven't yet decided we'd like to be part of our work's history.
+
+TODO: explanation or use old notes?
+
+## Part 1. Introduction
+
+`pay_gap.py` is a small program that analyzes pay equality using the provided `earnings.csv`.
+
+If you run the program you'll see a table of the top gender pay gaps represented in the data.
+
+You can also run `uv run pytest` to check that the program is returning the
+expected results.
+
+The program uses the built-in `csv` module, where many might prefer `pandas` or `polars`. The code is clear enough, but we're curious about performance.
+
+Let's write a small performance test using Python's built-in `timeit` module:
+
+```
+# perftest.py
+import timeit
+from pay_gap import get_top_pay_disparities
 
 
-## Files
+if __name__ == "__main__":
+    number = 100
+    
+    elapsed = timeit.timeit(
+        lambda: get_top_pay_disparities(10),
+        number=number
+    )
+    
+    avg_time = elapsed / number
+    
+    print(f"Total time:   {elapsed:.4f} seconds")
+    print(f"Average time: {avg_time:.4f} seconds")
+    print(f"Per call:     {avg_time * 1000:.2f} ms")
+```
 
-- README.md - this file
-- pyproject.toml/uv.lock - files for 
-- earnings.csv - A copy of 'Monthly employment earnings' downloaded from <https://ilostat.ilo.org/data/> on January 13th 2026.
+Add the above to a file named `perftest.py`, and run it with `uv run perftest.py`.
 
+Take note of the output, we'll want to remember these numbers in the next step.
+
+## Part 2. Exploring the Git History
+
+TODO: how to visualize?
+
+`git log --graph --oneline --all`
+
+You should see our `main` branch with
 
 ## Note About Data
+
+earnings.csv is a copy of 'Monthly employment earnings' downloaded from <https://ilostat.ilo.org/data/> on January 13th 2026.
 
 There are methodological differences between how countries collect this data that one should seriously consider in making head-to-head comparisons between different countries.
 
