@@ -48,9 +48,41 @@ Take note of the output, we'll want to remember these numbers in the next step.
 
 TODO: how to visualize?
 
+Let's visualize the graph using: `git log --graph --oneline`
+
+Our history begins at the bottom, with the most recent commit on top:
+
+- `` documentation for part 2
+- `9f49e22` documentation for part 1
+- `3dcc3d9` initial commit"
+
+This is the history of our current branch, `main`.
+
+Type `git branch` to see a list of branches, you'll see that there are two others: `pandas` and `polars`.
+
+To see the entire history, let's add `--all` to our `git log`
+
 `git log --graph --oneline --all`
 
-You should see our `main` branch with
+```
+TODO: final  
+```
+
+Here we see that there are commits that split off the main trunk:
+
+- `92b25a5` **(polars)** polars implementation
+- `de76c5e` add polars to project
+
+The `(polars)` indicates where the head of the branch currently sits.
+
+## Part 3. Perfomance Testing Pandas
+
+- `git switch -c <branchname>` - creates a new branch
+- `git switch <branchname>` - switches to an existing branch
+
+Let's use `git switch` to move over to the latest commit on the `pandas` branch.
+
+Once you've done that, run `uv run`
 
 ## Note About Data
 
