@@ -8,7 +8,7 @@ These notes will provide a refresher on how Git branches work: <https://notes.jp
 
 `pay_gap.py` is a small program that analyzes pay equality using the provided `earnings.csv`.
 
-If you run the program you'll see a table of the top gender pay gaps represented in the data.
+If you run the program with `uv run python pay_gap.py`, you'll see a table of the top gender pay gaps represented in the data.
 
 You can also run `uv run pytest` to check that the program is returning the
 expected results.
@@ -42,6 +42,13 @@ Add the above to a file named `perftest.py`, and run it with `uv run python perf
 
 Take note of the output, we'll want to remember these numbers in the next step.
 
+Let's commit the performance test file to our main branch: 
+
+```
+git add perftest.py
+git commit -m "perftest.py"
+```
+
 ## Part 2. Exploring the Git History
 
 Let's visualize the commit history concisely graph using: `git log --graph --oneline`
@@ -56,7 +63,7 @@ Our history begins at the bottom, with the most recent commit on top:
 
 This is the history of our current branch, `main`.
 
-Type `git branch` to see a list of branches, you'll see that there are two others: `pandas` and `polars`.
+Type `git branch -r` to see a list of branches, you'll see that there are two others: `pandas` and `polars`.
 
 To see the entire history, let's add `--all` to our `git log`
 
@@ -104,13 +111,13 @@ Let's use `git switch` to move over to the latest commit on the `pandas` branch.
 - `git switch -c <branchname>` - creates a new branch
 - `git switch <branchname>` - switches to an existing branch
 
-To see the difference between this and the main branch, you can run `git diff main pay_gap.py`. The lines in red that begin with `-` are the lines removed from `main` and the lines in green with `+` are the new lines on this branch.
+To see the difference between this and the main branch, you can run `git diff main pay_gap.py`. The lines in red that begin with `-` are the lines removed from `main` and the lines in green with `+` are the new lines on this branch. 
 
 You'll see that the entire function was rewritten, while the beginning & end of the file are the same.
 
-Once you've done that, run `uv run pytest` to ensure that the code works.
+Once you've done that, run `uv run pytest` to ensure that the tests pass.
 
-**It shouldn't!** `pandas` is not yet installed.
+**They shouldn't!** `pandas` is not yet installed.
 
 `uv add pandas`, and then run `uv run pytest` again.
 
@@ -158,7 +165,7 @@ At the top, you can see that a merge is a special kind of commit with multiple p
 Now we can run `uv run python perftest.py`!
 
 Note these numbers and compare them to the numbers from before.
-You should see a modest speed improvement over `csv`. `pandas` more efficient internal data structures that give it a speed advantage over equivaent python code in most cases.
+You should see a modest speed improvement over `csv`. `pandas` uses more efficient internal data structures that give it a speed advantage over equivalent python code in most cases.
 
 Before proceeding, you'll want to make another commit on this branch for the changes you made to `pyproject.toml` and `uv.lock` when installing pandas.
 
@@ -226,7 +233,7 @@ We already have an implementation on the `polars` branch. Let's follow a similar
 
 In Part 4, the only differences between the destination & source branch was the `perftest.py`, but now `main` has changed!
 
-When we try to merge the branches we are notified that there are conflicts:
+When we try to merge the branches using `git merge main --no-edit`, we are notified that there are conflicts:
 
 ```
 Auto-merging pay_gap.py
