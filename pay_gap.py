@@ -2,7 +2,7 @@
 Gender Pay Gap Analysis
 """
 
-import csv
+import polars as pl
 
 FILENAME = "earnings.csv"
 
@@ -18,37 +18,36 @@ def get_top_pay_disparities(top_n):
         List of tuples: [(country, pay_gap_percentage), ...]
         Sorted by pay_gap_percentage descending
     """
-    with open(FILENAME, "r", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        data = list(reader)
+    df = pl.read_csv(FILENAME, encoding="utf8")
 
-    # mutiple rows per record for currencies, filter to USD normalized
-    usd_data = [
-        row for row in data if row.get("classif1.label") == "Currency: U.S. dollars"
-    ]
+    # pick USD normalized data, only M & F
+    filtered = df.filter(pl.col("classif1.label") == "Currency: U.S. dollars").filter(
+        pl.col("sex.label").is_in(["Male", "Female"])
+    )
 
-    country_earnings = {}
-    for row in usd_data:
-        country = row["area"]
-        sex = row["sex.label"]
-        value = float(row["obs_value"])
-        if country not in country_earnings:
-            country_earnings[country] = {"Male": [], "Female": []}
-        if sex in ["Male", "Female"]:
-            country_earnings[country][sex].append(value)
+    # group by country and sex, calculate average earnings
+    country_sex_avg = filtered.group_by(["area", "sex.label"]).agg(
+        pl.col("obs_value").mean().alias("avg_earnings")
+    )
 
-    # average pay gap per country across whichever years are provided
-    results = []
-    for country, earnings in country_earnings.items():
-        # skip records with missing data
-        if earnings["Male"] and earnings["Female"]:
-            male_avg = sum(earnings["Male"]) / len(earnings["Male"])
-            female_avg = sum(earnings["Female"]) / len(earnings["Female"])
-            pay_gap = ((male_avg - female_avg) / male_avg) * 100
-            results.append((country, pay_gap))
+    # pivot to get M & F in same table
+    pivoted = country_sex_avg.pivot(values="avg_earnings", index="area", on="sex.label")
 
-    results.sort(key=lambda x: x[1], reverse=True)
-    return results[:top_n]
+    # calculate pay gap
+    results = (
+        pivoted.with_columns(
+            [
+                (((pl.col("Male") - pl.col("Female")) / pl.col("Male")) * 100).alias(
+                    "pay_gap_percentage"
+                )
+            ]
+        )
+        .select(["area", "pay_gap_percentage"])
+        .sort("pay_gap_percentage", descending=True)
+        .head(top_n)
+    )
+
+    return list(results.iter_rows())
 
 
 if __name__ == "__main__":
